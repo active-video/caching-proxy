@@ -1,0 +1,40 @@
+{
+  "name": "replay-server",
+  "description": "A simple replay server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server",
+  "version": "0.1.0",
+  "author": "Chad Wagner <cwagner@activevideo.com> (http://developer.activevideo.com/)",
+  "keywords": [
+    "test",
+    "testing",
+    "mock",
+    "stub",
+    "http",
+    "replay",
+    "vcr",
+    "api",
+    "server"
+  ],
+  "main": "./lib/replay",
+  "directories": {
+    "doc": "./doc",
+    "lib": "./lib"
+  },
+  "scripts": {},
+  "dependencies": {
+    "node-replay": "https://github.com/assaf/node-replay.git"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/active-video/node-replay-server"
+  },
+  "bugs": {
+    "url": "https://github.com/active-video/node-replay-server/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/active-video/node-replay-server/blob/master/MIT-LICENSE"
+    }
+  ]
+}

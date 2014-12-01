@@ -17,12 +17,14 @@
   "main": "./lib/replay",
   "directories": {
     "doc": "./doc",
-    "lib": "./lib"
+    "lib": "./lib",
+    "tmp": "./tmp"
   },
   "scripts": {},
   "dependencies": {
     "daemon": "^1.1.0",
     "minimist": "^1.1.0",
+    "ps-node": "0.0.3",
     "replay": "~1.11.0"
   },
   "devDependencies": {},

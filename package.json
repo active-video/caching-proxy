@@ -21,6 +21,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "daemon": "^1.1.0",
     "replay": "~1.11.0"
   },
   "devDependencies": {},

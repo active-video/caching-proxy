@@ -25,7 +25,7 @@ if (argv && argv.d) {
     // Check if process exists
     ps.lookup({
         command: 'node',
-        arguments: '-d'
+        arguments: ['replay-daemon.js','-d']
     }, function(err, resultList ) {
         if (err) {
             throw new Error( err );
@@ -34,19 +34,15 @@ if (argv && argv.d) {
         var runCount = 0;
 
         resultList.forEach(function( process ){
-            if (process && process.command == 'node') {
+            if (process) {
 
                 // console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
 
-                if (process.arguments[0] == 'replay-daemon.js') {
+                runCount++;
 
-                    runCount++;
-
-                    if (runCount>1) {
-                        throw new Error("replay-daemon is already running!");
-                    }
+                if (runCount > 1) {
+                    throw new Error("replay-daemon is already running!");
                 }
-
             }
         });
 

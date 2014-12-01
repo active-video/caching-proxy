@@ -16,6 +16,7 @@ console.log('Running with parameters: ' + JSON.stringify(argv));
 
 const PORT = (argv && argv.p) ? argv.p : 8092;
 const ADDR = '0.0.0.0';
+const ARG_DAEMON = '-d';
 
 var mode = (argv && argv.r) ? 'replay' : 'capture';
 
@@ -25,20 +26,33 @@ if (argv && argv.d) {
     // Check if process exists
     ps.lookup({
         command: 'node',
-        arguments: ['replay-daemon.js','-d']
-    }, function(err, resultList ) {
+        arguments: 'replay-daemon.js'
+    },
+    function(err, resultList ) {
+
         if (err) {
             throw new Error( err );
         }
 
         var runCount = 0;
 
-        resultList.forEach(function( process ){
+        resultList.forEach(function(process){
             if (process) {
 
                 // console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
 
-                runCount++;
+                var isRunningAsDaemon = false;
+                // Check if it's running with daemon flag
+                for (var x=process.arguments.length; x>0; x--) {
+
+                    if (process.arguments[x-1] == ARG_DAEMON) {
+                        isRunningAsDaemon = true;
+                    }
+                }
+
+                if (isRunningAsDaemon) {
+                    runCount++;
+                }
 
                 if (runCount > 1) {
                     throw new Error("replay-daemon is already running!");

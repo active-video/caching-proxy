@@ -21,7 +21,7 @@
   },
   "scripts": {},
   "dependencies": {
-    "node-replay": "https://github.com/assaf/node-replay.git"
+    "replay": "~1.11.0"
   },
   "devDependencies": {},
   "repository": {

@@ -17,11 +17,16 @@
   "main": "./lib/replay",
   "directories": {
     "doc": "./doc",
-    "lib": "./lib"
+    "lib": "./lib",
+    "tmp": "./tmp"
   },
   "scripts": {},
   "dependencies": {
-    "replay": "~1.11.0"
+    "daemon": "^1.1.0",
+    "httpsync": "0.0.8",
+    "minimist": "^1.1.0",
+    "ps-node": "0.0.3",
+    "replay": "^1.11.0"
   },
   "devDependencies": {},
   "repository": {

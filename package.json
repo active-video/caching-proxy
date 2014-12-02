@@ -21,8 +21,10 @@
   },
   "scripts": {},
   "dependencies": {
+    "forever-monitor": "^1.5.2",
     "optimist": "",
-    "replay": "~1.11.0"
+    "replay": "~1.11.0",
+    "request": "^2.49.0"
   },
   "devDependencies": {},
   "repository": {

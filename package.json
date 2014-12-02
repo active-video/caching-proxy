@@ -23,9 +23,10 @@
   "scripts": {},
   "dependencies": {
     "daemon": "^1.1.0",
+    "httpsync": "0.0.8",
     "minimist": "^1.1.0",
     "ps-node": "0.0.3",
-    "replay": "~1.11.0"
+    "replay": "^1.11.0"
   },
   "devDependencies": {},
   "repository": {

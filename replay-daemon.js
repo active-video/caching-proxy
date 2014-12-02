@@ -6,9 +6,10 @@
  * -r run in replay MODE
  */
 
-var http = require("http"),
-    replay = require("replay"),
-    ps = require('ps-node');
+var http        = require("http"),
+    ps          = require('ps-node'),
+    replay      = require("replay"),
+    httpsync    = require('httpsync');
 
 // parse arguments
 var argv = require('minimist')(process.argv.slice(2));
@@ -23,10 +24,13 @@ var mode = (argv && argv.r) ? 'replay' : 'capture';
 // Check for daemon mode
 if (argv && argv.d) {
 
+    var thisPID = process && process.pid;
+    console.log( 'This PID is ' + thisPID );
+
     // Check if process exists
     ps.lookup({
-        command: 'node',
-        arguments: 'replay-daemon.js'
+        command: 'node'
+        // arguments: 'replay-daemon.js'
     },
     function(err, resultList ) {
 
@@ -36,16 +40,17 @@ if (argv && argv.d) {
 
         var runCount = 0;
 
-        resultList.forEach(function(process){
-            if (process) {
+        resultList.forEach(function(prcss){
 
-                // console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
+            //console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', prcss.pid, prcss.command, prcss.arguments );
+
+            if (prcss && process.pid != prcss.pid) {
 
                 var isRunningAsDaemon = false;
                 // Check if it's running with daemon flag
-                for (var x=process.arguments.length; x>0; x--) {
+                for (var x=prcss.arguments.length; x>0; x--) {
 
-                    if (process.arguments[x-1] == ARG_DAEMON) {
+                    if (prcss.arguments[x-1] == ARG_DAEMON) {
                         isRunningAsDaemon = true;
                     }
                 }
@@ -54,8 +59,33 @@ if (argv && argv.d) {
                     runCount++;
                 }
 
+                // if there is another existing instance
                 if (runCount > 1) {
-                    throw new Error("replay-daemon is already running!");
+
+                    var hcIsAlive = false;
+                    // Health check
+                    var hcOptions = {
+                        url : 'http://'+ADDR+':'+PORT+'/ping/',
+                        method : 'GET',
+                        timeout: 5,
+                        connectionTimeout : 5
+                    };
+                    var reqHealthCheck = httpsync.request(hcOptions);
+                    reqHealthCheck.end();
+                    console.log("statusCode: ", reqHealthCheck.response.statusCode);
+                    if (reqHealthCheck.response.statusCode==200) {
+
+                        if (reqHealthCheck.response.data == 'pong') {
+                            hcIsAlive = true;
+                        }
+
+                    }
+
+                    if (hcIsAlive) {
+                        throw new Error("replay-daemon is already running!");
+                    } else {
+
+                    }
                 }
             }
         });

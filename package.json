@@ -21,6 +21,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "optimist": "",
     "replay": "~1.11.0"
   },
   "devDependencies": {},

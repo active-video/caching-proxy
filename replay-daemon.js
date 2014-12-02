@@ -29,8 +29,9 @@ if (argv && argv.d) {
 
     // Check if process exists
     ps.lookup({
-        command: 'node'
-        // arguments: 'replay-daemon.js'
+        command: 'node',
+        arguments: 'replay-daemon.js',
+        psargs: 'u' // added user column as installing module 'httpsync' corrupts parsing the table by omitting the first column
     },
     function(err, resultList ) {
 
@@ -38,13 +39,14 @@ if (argv && argv.d) {
             throw new Error( err );
         }
 
-        var runCount = 0;
+        console.log('Checking for existing instances...');
 
         resultList.forEach(function(prcss){
 
-            //console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', prcss.pid, prcss.command, prcss.arguments );
+            // Check if it's not the current process
+            if (prcss && prcss.pid != thisPID) {
 
-            if (prcss && process.pid != prcss.pid) {
+                console.log( 'Found PID: %s, COMMAND: %s, ARGUMENTS: %s', prcss.pid, prcss.command, prcss.arguments );
 
                 var isRunningAsDaemon = false;
                 // Check if it's running with daemon flag
@@ -55,36 +57,54 @@ if (argv && argv.d) {
                     }
                 }
 
-                if (isRunningAsDaemon) {
-                    runCount++;
-                }
-
                 // if there is another existing instance
-                if (runCount > 1) {
+                if (isRunningAsDaemon) {
 
+                    console.log("This is another daemon instance, check if it's alive...");
+
+                    // Run health check
                     var hcIsAlive = false;
-                    // Health check
                     var hcOptions = {
-                        url : 'http://'+ADDR+':'+PORT+'/ping/',
-                        method : 'GET',
+                        url: 'http://' + ADDR + ':' + PORT + '/ping/',
+                        method: 'GET',
                         timeout: 5,
-                        connectionTimeout : 5
+                        connectionTimeout: 5
                     };
                     var reqHealthCheck = httpsync.request(hcOptions);
-                    reqHealthCheck.end();
-                    console.log("statusCode: ", reqHealthCheck.response.statusCode);
-                    if (reqHealthCheck.response.statusCode==200) {
+                    var timeoutHealthCheck = false;
+                    try {
+                        var respHealthCheck = reqHealthCheck.end();
+                    } catch (e) {
+                        timeoutHealthCheck = true;
+                    }
 
-                        if (reqHealthCheck.response.data == 'pong') {
-                            hcIsAlive = true;
+                    if (!timeoutHealthCheck) {
+
+                        // Check for response
+                        if (respHealthCheck.statusCode == 200) {
+
+                            // Check for response data
+                            if (respHealthCheck.data == 'pong') {
+                                hcIsAlive = true;
+                                console.log('Received PONG, existing instance is alive.');
+                            }
                         }
-
                     }
 
                     if (hcIsAlive) {
+                        // Existing instance is alive, stop this one
                         throw new Error("replay-daemon is already running!");
                     } else {
-
+                        // Existing instance is not responding, kill it
+                        console.log('Killing instance with PID '+prcss.pid+'...');
+                        ps.kill(prcss.pid, function( err ) {
+                            if (err) {
+                                console.log('Could NOT kill PID '+prcss.pid+'!');
+                                throw new Error( err );
+                            } else {
+                                console.log('Hanging instance with PID '+prcss.pid+' has been killed!');
+                            }
+                        });
                     }
                 }
             }
@@ -103,8 +123,12 @@ var main = function() {
     console.log('Running in daemon mode... (PID '+(process && process.pid)+')');
 
     var server = http.createServer(function (req, res) {
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end('Hello World\n');
+
+        // uncomment setTimeout to test the case where thread is hanging
+        // setTimeout(function() {
+            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.end('pong');
+        // }, 7000);
     });
 
     server.listen(PORT, ADDR, function () {

@@ -15,5 +15,5 @@ First, make `forever.js` executable:
 Then run:
 
 ```bash
-  /path/to/folder/forever.js replay-server.js -10 -t 5
+  ./path/to/folder/forever.js replay-server.js -10 -t 5
 ```

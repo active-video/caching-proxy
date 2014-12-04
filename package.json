@@ -22,7 +22,8 @@
   "scripts": {},
   "dependencies": {
     "optimist": "",
-    "replay": "~1.11.0"
+    "cachelicious": "",
+    "follow-redirects" : ""
   },
   "devDependencies": {},
   "repository": {

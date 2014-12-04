@@ -13,11 +13,15 @@ var args = require('optimist').argv,
     isReplay = args.r || false,
     isCapture = args.c || !isReplay,
     isDaemon = args.d || false,
-    dir = args.dir || __dirname + '/data';
+    dir = args.dir || __dirname + '/data/replay';
 
 var http = require('http'),
-    url = require('url'),
-    Cache = require('./lib/Cache');
+    replay = require('replay'),
+    url = require('url');
+
+replay.mode = isReplay ? 'replay' : 'record';
+replay.fixtures = dir;
+replay.debug=true;
 
 
 
@@ -26,10 +30,11 @@ console.log('isReplay=' + isReplay + ', isCapture=' + isCapture + ', isDaemon=' 
 
 var SERVER = {
     PORT: port,
+    IS_REPLAY: isReplay,
+    IS_CAPTURE: isCapture,
     IS_DAEMON: isDaemon,
     EXCLUDED_HEADERS: '',
     ADDRESS : {},
-    DIR : dir,
 
     handler: function (req, res) {
         //is this a health check?
@@ -37,36 +42,11 @@ var SERVER = {
             return;
         }
 
+        //we can manually serve 304's
+        var ifModifiedSince = req && req.headers && req.headers['if-modified-since'];
+
         var options = SERVER.toRequest(req);
         //console.log('NEW REQUEST: ', JSON.stringify(options));
-
-
-        var cache = new Cache({
-            url: options.fullUrl,
-            headers: options.headers,
-            body: req.data,
-            dir: SERVER.DIR,
-            method: options.method,
-            proxyPath: 'http://' + SERVER.ADDRESS.address + ':' + SERVER.ADDRESS.port + '/'
-        });
-
-
-
-        if(!cache.exists()){
-            cache.captureThenServe(options, req.data, res)
-            /*
-            var proxyRequest = http.request(options, cache.captureThenServe.bind(cache, res);
-            //SERVER.onResponse.bind(this, req, res));
-            proxyRequest.on('response', SERVER.onHeaders.bind(this, req, res, ifModifiedSince));
-            proxyRequest.on('error', SERVER.onError.bind(this, req, res, proxyRequest));
-            */
-        }else{
-            cache.serve(req, res);
-        }
-
-        return;
-
-
 
         var proxyRequest = http.request(options, SERVER.onResponse.bind(this, req, res));
         proxyRequest.on('response', SERVER.onHeaders.bind(this, req, res, ifModifiedSince));
@@ -101,10 +81,6 @@ var SERVER = {
         }
 
         return false;
-    },
-
-    onCacheResponse : function(req, res, cachedData){
-
     },
 
     onHeaders: function (req, res, ifModifiedSince, response) {
@@ -227,12 +203,21 @@ var SERVER = {
 
         delete headers['accept-encoding'];
 
+        //replay matches this header, but we want to be able to serve
+        //the original 200 with body even if the consumer
+        //has never requested it since the original capture
+        //meaning the if-modified-since provides us with
+        //an inability to just serve a 304 unless a 304 was previouslly
+        //captured
+        delete headers['if-modified-since'];
+
+
+
         options.host = requestParams.hostname;
         options.port = requestParams.port ? requestParams.port : (https ? 443 : 80);
         options.method = req.method;
         options.path = requestParams.path;
         options.headers = headers;
-        options.fullUrl = requestUrl;
 
         if (requestParams.auth) {
             //options.auth = requestParams.auth;

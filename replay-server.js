@@ -76,7 +76,7 @@ var SERVER = {
 
 
         if(!cache.exists()){
-            cache.captureThenServe(res, options)
+            cache.captureThenServe(req, res, options)
             /*
              var proxyRequest = http.request(options, cache.captureThenServe.bind(cache, res);
              //SERVER.onResponse.bind(this, req, res));

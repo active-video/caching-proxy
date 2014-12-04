@@ -23,7 +23,8 @@
   "dependencies": {
     "optimist": "",
     "cachelicious": "",
-    "follow-redirects" : ""
+    "follow-redirects" : "",
+    "mkdirp" : ""
   },
   "devDependencies": {},
   "repository": {

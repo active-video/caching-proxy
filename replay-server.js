@@ -17,6 +17,7 @@ var args = require('optimist').argv,
 
 var http = require('http'),
     url = require('url'),
+    util = require('util'),
     Cache = require('./lib/Cache');
 
 
@@ -40,6 +41,10 @@ var SERVER = {
         var options = SERVER.toRequest(req);
         //console.log('NEW REQUEST: ', JSON.stringify(options));
 
+        var proxyPath = req.headers.host;
+        if(!proxyPath){
+            proxyPath = SERVER.ADDRESS.address + ':' + SERVER.ADDRESS.port;
+        }
 
         var cache = new Cache({
             url: options.fullUrl,
@@ -47,7 +52,7 @@ var SERVER = {
             body: req.data,
             dir: SERVER.DIR,
             method: options.method,
-            proxyPath: 'http://' + SERVER.ADDRESS.address + ':' + SERVER.ADDRESS.port + '/'
+            proxyPath: 'http://' + proxyPath + "/"
         });
 
 
@@ -214,7 +219,9 @@ var SERVER = {
             requestParams = url.parse(requestUrl),
             https = requestParams.href.indexOf('https') === 0,
             options = {},
-            headers = req.headers || {};
+            headers = util._extend({}, req.headers || {});;
+
+
 
         //console.log('https=' + https, ', original url=' + req.url + ' new url=' + requestUrl + ', params', requestParams);
 

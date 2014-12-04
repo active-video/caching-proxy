@@ -40,7 +40,7 @@ var SERVER = {
         //is this a health check?
         if (req.url.match(/^\/ping/)) {
             res.writeHead(200);
-            res.end('pong\n');
+            res.end('pong');
             return;
         }
 
@@ -58,7 +58,7 @@ var SERVER = {
     },
 
     onResponse: function (req, res, response) {
-        var data = ''
+        var data = '';
 
         var handleResponse = function () {
             SERVER.onSuccess(req, res, response, data);
@@ -82,7 +82,7 @@ var SERVER = {
     },
 
     onError : function(req, res, proxyRequest, evt){
-        console.log("onError", evt )
+        console.log("onError", evt );
         res.writeHead(evt.code, proxyRequest.headers || {});
         res.end(evt.message);
     },
@@ -151,7 +151,7 @@ var SERVER = {
     }
 
 
-}
+};
 
 
 //Listen for all requests

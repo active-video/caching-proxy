@@ -38,6 +38,24 @@ var SERVER = {
             return;
         }
 
+        if(!req.headers || !req.headers['content-length']){
+            SERVER.onRequestReceived(req, res);
+        }else{
+            console.log("POST");
+            var body = '';
+            req.on('data', function (data) {
+                body += data;
+                console.log("POST PARTIAL BODY: " + body);
+            });
+            req.on('end', function () {
+                console.log("POST FULL BODY: " + body);
+                req.body = body;
+                SERVER.onRequestReceived(req, res);
+            });
+        }
+    },
+
+    onRequestReceived : function(req, res){
         var options = SERVER.toRequest(req);
         //console.log('NEW REQUEST: ', JSON.stringify(options));
 
@@ -49,7 +67,7 @@ var SERVER = {
         var cache = new Cache({
             url: options.fullUrl,
             headers: options.headers,
-            body: req.data,
+            body: req.body,
             dir: SERVER.DIR,
             method: options.method,
             proxyPath: 'http://' + proxyPath + "/"
@@ -58,13 +76,13 @@ var SERVER = {
 
 
         if(!cache.exists()){
-            cache.captureThenServe(options, req.data, res)
+            cache.captureThenServe(res, options)
             /*
-            var proxyRequest = http.request(options, cache.captureThenServe.bind(cache, res);
-            //SERVER.onResponse.bind(this, req, res));
-            proxyRequest.on('response', SERVER.onHeaders.bind(this, req, res, ifModifiedSince));
-            proxyRequest.on('error', SERVER.onError.bind(this, req, res, proxyRequest));
-            */
+             var proxyRequest = http.request(options, cache.captureThenServe.bind(cache, res);
+             //SERVER.onResponse.bind(this, req, res));
+             proxyRequest.on('response', SERVER.onHeaders.bind(this, req, res, ifModifiedSince));
+             proxyRequest.on('error', SERVER.onError.bind(this, req, res, proxyRequest));
+             */
         }else{
             cache.serve(req, res);
         }

@@ -64,7 +64,7 @@ This is NOT an HTTP proxy for your network, it exposes an HTTP service that you 
 * ```i```: health check interval in seconds. How often to ping the caching-proxy server for aliveness. Default is 30 seconds.
 * ```t```: health check timeout in seconds. How long to wait for a response from the caching-proxy server before it is considered unresponsive. Default is 10 seconds.
 * ```p```: caching-proxy server port. Default is 8092.
-* ```dir```: the directory to save cached data into, default is the ./data/ folder
+* ```d```: the directory to save cached data into, default is the ./data/ folder
 
 #### Example with parameters:
 

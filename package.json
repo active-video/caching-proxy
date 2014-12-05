@@ -22,7 +22,6 @@
   "scripts": {},
   "dependencies": {
     "optimist": "",
-    "cachelicious": "",
     "follow-redirects" : "",
     "mkdirp" : ""
   },

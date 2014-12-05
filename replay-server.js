@@ -1,9 +1,7 @@
 /**
  * Options
- * -d run as a daemon, exiting the parent process immediately upon starting up the replay-server
+ * -d running as a daemon, this is more for introspection, pass this in if you are firing us up as a daemon
  * -p <port number> the port to run on, the default is 8092
- * -c run in capture MODE (default mode if no MODE is provided)
- * -r run in replay MODE
  */
 
 
@@ -77,12 +75,6 @@ var SERVER = {
 
         if(!cache.exists()){
             cache.captureThenServe(req, res, options)
-            /*
-             var proxyRequest = http.request(options, cache.captureThenServe.bind(cache, res);
-             //SERVER.onResponse.bind(this, req, res));
-             proxyRequest.on('response', SERVER.onHeaders.bind(this, req, res, ifModifiedSince));
-             proxyRequest.on('error', SERVER.onError.bind(this, req, res, proxyRequest));
-             */
         }else{
             cache.serve(req, res);
         }
@@ -114,7 +106,7 @@ var SERVER = {
         if (req.url.match(/^\/ping/)) {
             console.warn('(handleSpecialCases) Serving 200, pong');
             res.writeHead(200);
-            res.end('pong\n');
+            res.end('pong');
             return true;
         } else if (req.url.indexOf('/http') !== 0) {
             console.warn('(handleSpecialCases) Serving 404, not absolute URL: ' + req.url);

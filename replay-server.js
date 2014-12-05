@@ -1,9 +1,7 @@
 /**
  * Options
- * -d run as a daemon, exiting the parent process immediately upon starting up the replay-server
+ * -d running as a daemon, this is more for introspection, pass this in if you are firing us up as a daemon
  * -p <port number> the port to run on, the default is 8092
- * -c run in capture MODE (default mode if no MODE is provided)
- * -r run in replay MODE
  */
 
 
@@ -12,15 +10,13 @@ var args = require('optimist').argv,
     port = args.p || 8092,
     isReplay = args.r || false,
     isCapture = args.c || !isReplay,
-    isDaemon = args.d || false;
+    isDaemon = args.d || false,
+    dir = args.dir || __dirname + '/data';
 
 var http = require('http'),
-    replay = require('replay'),
-    url = require('url');
-
-replay.mode = isReplay ? "replay" : "record";
-replay.fixtures = __dirname + "/fixtures/replay";
-replay.debug=true;
+    url = require('url'),
+    util = require('util'),
+    Cache = require('./lib/Cache');
 
 
 
@@ -29,25 +25,66 @@ console.log('isReplay=' + isReplay + ', isCapture=' + isCapture + ', isDaemon=' 
 
 var SERVER = {
     PORT: port,
-    IS_REPLAY: isReplay,
-    IS_CAPTURE: isCapture,
     IS_DAEMON: isDaemon,
     EXCLUDED_HEADERS: '',
     ADDRESS : {},
-
+    DIR : dir,
 
     handler: function (req, res) {
         //is this a health check?
-        if (req.url.match(/^\/ping/)) {
-            res.writeHead(200);
-            res.end('pong');
+        if(SERVER.handleSpecialCases(req, res)){
             return;
         }
 
+        if(!req.headers || !req.headers['content-length']){
+            SERVER.onRequestReceived(req, res);
+        }else{
+            console.log("POST");
+            var body = '';
+            req.on('data', function (data) {
+                body += data;
+                console.log("POST PARTIAL BODY: " + body);
+            });
+            req.on('end', function () {
+                console.log("POST FULL BODY: " + body);
+                req.body = body;
+                SERVER.onRequestReceived(req, res);
+            });
+        }
+    },
+
+    onRequestReceived : function(req, res){
         var options = SERVER.toRequest(req);
-        console.log('NEW REQUEST: ', JSON.stringify(options));
+        //console.log('NEW REQUEST: ', JSON.stringify(options));
+
+        var proxyPath = req.headers.host;
+        if(!proxyPath){
+            proxyPath = SERVER.ADDRESS.address + ':' + SERVER.ADDRESS.port;
+        }
+
+        var cache = new Cache({
+            url: options.fullUrl,
+            headers: options.headers,
+            body: req.body,
+            dir: SERVER.DIR,
+            method: options.method,
+            proxyPath: 'http://' + proxyPath + "/"
+        });
+
+
+
+        if(!cache.exists()){
+            cache.captureThenServe(req, res, options)
+        }else{
+            cache.serve(req, res);
+        }
+
+        return;
+
+
 
         var proxyRequest = http.request(options, SERVER.onResponse.bind(this, req, res));
+        proxyRequest.on('response', SERVER.onHeaders.bind(this, req, res, ifModifiedSince));
         proxyRequest.on('error', SERVER.onError.bind(this, req, res, proxyRequest));
 
         if(req.data){
@@ -57,11 +94,69 @@ var SERVER = {
         proxyRequest.end();
     },
 
+    /**
+     * Handles special cases,
+     *  1) Liveness check
+     *  2)
+     * @param req
+     * @param res
+     * @returns {boolean}
+     */
+    handleSpecialCases: function (req, res) {
+        if (req.url.match(/^\/ping/)) {
+            console.warn('(handleSpecialCases) Serving 200, pong');
+            res.writeHead(200);
+            res.end('pong');
+            return true;
+        } else if (req.url.indexOf('/http') !== 0) {
+            console.warn('(handleSpecialCases) Serving 404, not absolute URL: ' + req.url);
+            res.setHeader('404', {'content-type': 'text/plain'});
+            res.end('The URL provided to replay-server was not absolute, and relative paths cannot be resolved by it (' + req.url +')\n');
+            return true;
+        }
+
+        return false;
+    },
+
+    onCacheResponse : function(req, res, cachedData){
+
+    },
+
+    onHeaders: function (req, res, ifModifiedSince, response) {
+        //console.log('RESPONSE!!!', ifModifiedSince, response.headers)
+        if (ifModifiedSince) {
+            if(!response.headers['last-modified']){
+                return;
+            }
+
+            var ifModified = (new Date(ifModifiedSince)).getTime();
+            var lastModified = (new Date(response.headers['last-modified'])).getTime();
+
+            console.log('ifModifiedSince', ifModifiedSince, ifModified, lastModified, lastModified > ifModified);
+            if(lastModified <= ifModified && false){
+                console.log('(onHeaders) Serving 304, ' + lastModified + '<=' + ifModified);
+                res.writeHead(304);
+                res.end();
+
+                //replay ProxyRequest() does not support abort(), so flag it manually
+                response.aborted = true;
+                return;
+            }
+
+
+
+        }
+    },
+
     onResponse: function (req, res, response) {
-        var data = '';
+        var data = ''
 
         var handleResponse = function () {
-            SERVER.onSuccess(req, res, response, data);
+            if(!response.aborted){
+                SERVER.onSuccess(req, res, response, data);
+            }else{
+                console.log("(onResponse) Serving nothing, request already serviced");
+            }
         };
 
         response.on('end', handleResponse);
@@ -72,27 +167,39 @@ var SERVER = {
     },
 
     onSuccess : function(req, res, proxyRequest, data){
-        console.log('END: ' + data.length, proxyRequest.url);//Object.keys(proxyRequest));
-        //console.log('Response headers: ', proxyRequest.headers);
+        //console.log('END: ' + data.length, proxyRequest.url);//Object.keys(proxyRequest));
+        console.log('(onSuccess) Serving ' + proxyRequest.statusCode + ' for ' + req.fullUrl);
+
+        //proxyRequest.headers['content-length'] =
 
         res.writeHead(proxyRequest.statusCode, proxyRequest.headers || {});
 
-        //write headers
-        res.end(SERVER.updateResponse(req, data));
+        var responseData = data, contentType = proxyRequest.headers && proxyRequest.headers['content-type'];
+        console.log("response headers", proxyRequest);
+        if(contentType && contentType.match(/(text|json|xml)/i)){
+            console.log("serving binary data");
+            res.end(responseData, 'binary');
+            console.log("done serving binary data");
+        }else{
+            responseData = SERVER.updateResponse(req, data);
+            res.end(responseData);
+        }
+
+
     },
 
     onError : function(req, res, proxyRequest, evt){
-        console.log("onError", evt );
+        console.warn('(onError) Serving ' + evt.code + ' for ' + proxyRequest.url);
         res.writeHead(evt.code, proxyRequest.headers || {});
         res.end(evt.message);
     },
 
 
     updateResponse: function (req, body) {
-        var url = 'http://' + SERVER.ADDRESS.address + ":" + SERVER.ADDRESS.port + "/";
+        var url = 'http://' + SERVER.ADDRESS.address + ':' + SERVER.ADDRESS.port + '/';
 
-        body = body.replace(/http\:\/\//g, url  + "http/");
-        body = body.replace(/https\:\/\//g, url  + "https/");
+        body = body.replace(/http\:\/\//g, url  + 'http/');
+        body = body.replace(/https\:\/\//g, url  + 'https/');
 
         return body;
     },
@@ -118,13 +225,15 @@ var SERVER = {
      */
     toRequest: function (req) {
 
-        var requestUrl = req.url.replace('/http/', 'http://').replace('/https/', 'https://'),
+        var requestUrl = SERVER.cleanRequestUrl(req.url),
             requestParams = url.parse(requestUrl),
             https = requestParams.href.indexOf('https') === 0,
             options = {},
-            headers = req.headers || {};
+            headers = util._extend({}, req.headers || {});;
 
-        //console.log('https=' + https, ', original url=' + req.url + ', params', requestParams);
+
+
+        //console.log('https=' + https, ', original url=' + req.url + ' new url=' + requestUrl + ', params', requestParams);
 
         //override host
         if (headers.Host) {
@@ -133,25 +242,49 @@ var SERVER = {
             headers.host = requestParams.hostname;
         }
 
-        headers['accept-encoding'] = null;
-
-
+        delete headers['accept-encoding'];
 
         options.host = requestParams.hostname;
         options.port = requestParams.port ? requestParams.port : (https ? 443 : 80);
         options.method = req.method;
         options.path = requestParams.path;
         options.headers = headers;
+        options.fullUrl = requestUrl;
 
         if (requestParams.auth) {
-            options.auth = requestParams.auth;
+            //options.auth = requestParams.auth;
+            var auth = requestParams.auth.split(':');
+            var username = auth[0];
+            var password = auth[1];
+            options.headers.authorization = 'Basic ' + new Buffer(username + ':' + password).toString('base64');
         }
 
+        //console.log("Request Options: ", options);
+
+        req.fullUrl = requestUrl;
+
         return options;
+    },
+
+    /**
+     * Given a URL string, clean it of any standard randomization tokens generally
+     * associated with cache busters
+     *
+     * @param url {String}
+     * @returns {string}
+     */
+    cleanRequestUrl: function (url) {
+        var cleanedUrl = url.replace('/http/', 'http://').replace('/https/', 'https://');
+        cleanedUrl = cleanedUrl.replace(/rand\=[a-z0-9][\&]*/i, '');
+        cleanedUrl = cleanedUrl.replace(/[\&\?][0-9]+[\&]*$/i, '');
+
+        console.log("cleanedUrl: " + cleanedUrl);
+
+        return cleanedUrl;
     }
 
 
-};
+}
 
 
 //Listen for all requests

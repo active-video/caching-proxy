@@ -1,1 +1,9 @@
 node_modules/*
+scopes
+.git
+.idea
+.project
+.settings
+.DS_Store
+*.htaccess
+npm-debug.log

@@ -1,4 +1,9 @@
 node_modules/*
-fixtures/*
-data/*
-.idea/
+scopes
+.git
+.idea
+.project
+.settings
+.DS_Store
+*.htaccess
+npm-debug.log

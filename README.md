@@ -54,6 +54,6 @@ A caching proxy server useable in your front-end projects to cache API requests 
 #### Example with parameters:
 
 ``` bash
-  ./path/to/folder/forever.js replay-server.js -i 10 -t 5 -p 8093
+  ./path/to/folder/daemon.sh -i 10 -t 5 -p 8093
 ```
 

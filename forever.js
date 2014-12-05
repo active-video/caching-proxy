@@ -11,13 +11,20 @@ var args        = require('optimist').argv,
 
 console.log('Forever args: ', args);
 
+/**
+ * Instantiate a Forever monitor
+ */
 var child = new (forever.Monitor)(script, {
     silent: false,
-    args: ['-d', '-p '+port],
+    args: ['-d', '-p '+port], // passes the 'd' flag (daemonized) and the port number to the child script
     minUptime: 5000, // Minimum time a child process has to be up. Forever will 'exit' otherwise.
     spinSleepTime: 3000 // Interval between restarts if a child is spinning (i.e. alive < minUptime).
 });
 
+
+/**
+ * Listeners hooked to the child script's events
+ */
 child.on('start', function () {
     console.log('Forever started the script '+script+'...');
     isAlive();
@@ -46,11 +53,15 @@ child.on('exit:code', function(code) {
 child.on('message', function(info) {
     console.log('Received a message from child: ', info);
 });
+/* End listeners */
 
-
+// Start the child script
 child.start();
 
-
+/**
+ * @function isAlive
+ * @description Checks every X seconds if an HTTP server responds 'pong' to a '/ping/' URL before a Y seconds timeout
+ */
 var isAlive = function(){
 
     timer = setInterval(function(){
@@ -62,7 +73,8 @@ var isAlive = function(){
                 timeout: hcTimeout
             },
             function (error, response, body) {
-                if (error || response.statusCode != 200 || body!='pong') {
+                // Check for 'pong' response
+                if (error || (response && response.statusCode != 200) || body!='pong') {
                     console.log('No pong, restarting process...');
                     child.restart();
                 } else {

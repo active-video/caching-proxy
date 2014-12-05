@@ -23,6 +23,8 @@
   "dependencies": {
     "forever-monitor": "^1.5.2",
     "optimist": "",
+    "follow-redirects" : "",
+    "mkdirp" : ""
     "request": "^2.49.0"
   },
   "devDependencies": {},

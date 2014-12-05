@@ -21,11 +21,11 @@
   },
   "scripts": {},
   "dependencies": {
-    "forever-monitor": "^1.5.2",
-    "optimist": "",
-    "follow-redirects" : "",
-    "mkdirp" : "",
-    "request": "^2.49.0"
+    "forever-monitor": ">=1.5.2",
+    "optimist": ">=0.6.1",
+    "follow-redirects" : ">=0.0.3",
+    "mkdirp" : ">=0.5.0",
+    "request": ">=2.49.0"
   },
   "devDependencies": {},
   "repository": {

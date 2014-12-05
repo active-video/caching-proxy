@@ -1,12 +1,24 @@
 caching-proxy
 ==================
 
-A caching proxy server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server - for tradeshows, demos (offline and online), data that you know will be retired someday and you want a local copy that you can reuse at any time, and load testing in shared environments (exmample CloudTV where a server could be running thousands of browser sessions at once and you want to test server scalability independent of APIs an app might depend on, ala activevideo.com)
+A caching proxy server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server - for trade-shows, demos (offline and online), data that you know will be retired someday and you want a local copy that you can reuse at any time, and load testing in shared environments (example CloudTV where a server could be running thousands of browser sessions at once and you want to test server scalability independent of APIs an app might depend on, ala activevideo.com)
 
 This is NOT an HTTP proxy for your network, it exposes an HTTP service that you can route requests THROUGH (and it caches responses with a TTL = infinity).
 
+### To start up with the default options
+
+```
+    # install the caching-proxy
+    npm install caching-proxy
+    
+    # run it
+    node start.js
+```    
+    
+
 ### Include in your own project
-```//package.json
+```
+    //package.json
     dependencies: {
     ...
     "caching-proxy":"^1.0.0"
@@ -31,7 +43,7 @@ This is NOT an HTTP proxy for your network, it exposes an HTTP service that you 
     })
 ```
 
-## Run as a deamon service
+## Run as a daemon service
 
 ### First, make `daemon.sh` executable:
 
@@ -49,8 +61,8 @@ This is NOT an HTTP proxy for your network, it exposes an HTTP service that you 
 
 ### Available parameters:
 
-* ```i```: health check interval in seconds. How often to ping the node-replay server for aliveness. Default is 30 seconds.
-* ```t```: health check timeout in seconds. How long to wait for a response from the node-replay server before it is considered unresponsive. Default is 10 seconds.
+* ```i```: health check interval in seconds. How often to ping the caching-proxy server for aliveness. Default is 30 seconds.
+* ```t```: health check timeout in seconds. How long to wait for a response from the caching-proxy server before it is considered unresponsive. Default is 10 seconds.
 * ```p```: caching-proxy server port. Default is 8092.
 * ```dir```: the directory to save cached data into, default is the ./data/ folder
 

@@ -9,7 +9,6 @@
     "mock",
     "stub",
     "http",
-    "replay",
     "vcr",
     "api",
     "server"
@@ -30,15 +29,15 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/active-video/node-replay-server"
+    "url": "https://github.com/active-video/caching-proxy"
   },
   "bugs": {
-    "url": "https://github.com/active-video/node-replay-server/issues"
+    "url": "https://github.com/active-video/caching-proxy/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/active-video/node-replay-server/blob/master/MIT-LICENSE"
+      "url": "https://github.com/active-video/caching-proxy/blob/master/MIT-LICENSE"
     }
   ]
 }

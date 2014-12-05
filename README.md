@@ -15,7 +15,7 @@ A simple replay server usable in your front-end projects to cache API requests a
 ### Then run:
 
 ``` bash
-  ./path/to/folder/forever.js replay-server.js
+  ./path/to/folder/daemon.sh
 ```
 
 ### Available parameters:
@@ -28,4 +28,28 @@ A simple replay server usable in your front-end projects to cache API requests a
 
 ``` bash
   ./path/to/folder/forever.js replay-server.js -i 10 -t 5 -p 8093
+```
+
+### Include in your own project
+```//package.json
+    dependencies: {
+    ...
+    "caching-proxy":"^1.0.0"
+    ...
+    }
+```
+
+#### Then where you need it to start inline
+```//auto-start the server right away
+    require('caching-proxy').start()
+```
+
+### #Or to use it in your script
+```//use it
+    var CachingProxy=require('caching-proxy')
+    
+    var proxy = new CachingProxy({
+        port: 9090, 
+        dir: './data/cached-data'
+    })
 ```

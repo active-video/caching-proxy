@@ -1,7 +1,9 @@
-node-replay-server
+caching-proxy
 ==================
 
-A caching proxy server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server - for tradeshows, demos (offline and online), data that you know will be retired someday and you want a capture in time that you can reuse, and load testing in shared environments (exmample CloudTV where a server could be running thousands of browser sessions at once and you want to test server scalability independent of APIs an app might depend on, ala activevideo.com)
+A caching proxy server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server - for tradeshows, demos (offline and online), data that you know will be retired someday and you want a local copy that you can reuse at any time, and load testing in shared environments (exmample CloudTV where a server could be running thousands of browser sessions at once and you want to test server scalability independent of APIs an app might depend on, ala activevideo.com)
+
+This is NOT an HTTP proxy for your network, it exposes an HTTP service that you can route requests THROUGH (and it caches responses with a TTL = infinity).
 
 ### Include in your own project
 ```//package.json
@@ -49,11 +51,49 @@ A caching proxy server useable in your front-end projects to cache API requests 
 
 * ```i```: health check interval in seconds. How often to ping the node-replay server for aliveness. Default is 30 seconds.
 * ```t```: health check timeout in seconds. How long to wait for a response from the node-replay server before it is considered unresponsive. Default is 10 seconds.
-* ```p```: node-replay server port. Default is 8092.
+* ```p```: caching-proxy server port. Default is 8092.
+* ```dir```: the directory to save cached data into, default is the ./data/ folder
 
 #### Example with parameters:
 
-``` bash
+``` 
+   bash
   ./path/to/folder/daemon.sh -i 10 -t 5 -p 8093
 ```
 
+## From your applications that wants to use cached content
+
+All requests routed through caching proxy should have the initial
+
+-  `http://` ---> replaced with `http/`
+-  `https://` ---> replaced with `https/`
+
+```
+   var cachingProxy = 'http://localhost:8092/';
+   var urlToGet = 'http://developer.activevideo.com';
+   
+   var urlRoutedThroughProxy = cachingProxy + urlToGet.replace('http://', 'http/');
+   
+   var x = new XMLHttpRequest();
+   x.open('GET', 'http://localhost:8092/', true);
+   x.send();
+```
+
+The response will be saved to the directory ./data/ by default, or if you started the proxy with.
+ 
+The response content for any text file will be searched, and all absolute paths within the response text will be replaced with the path to the proxy. 
+
+Source HTML before proxy does replacements
+
+```
+   <html>
+        <img src="http://developer.activevideo.com/templates/avdeveloper/images/logo.png" />
+   </html>
+```
+
+"Massaged" HTML after'
+```
+   <html>
+        <img src="http://localhost:8092/http/developer.activevideo.com/templates/avdeveloper/images/logo.png" />
+   </html>
+```

@@ -7,3 +7,4 @@ scopes
 .DS_Store
 *.htaccess
 npm-debug.log
+data

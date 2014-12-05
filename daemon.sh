@@ -3,7 +3,7 @@
 var args        = require('optimist').argv,
     forever     = require('forever-monitor'),
     request     = require('request'),
-    script      = args._ && args._[0],
+    script      = "start.js",
     port        = args.p || 8092,
     hcInterval  = (args.i && args.i*1000) || 30000,
     hcTimeout   = (args.t && args.t*1000) || 10000,

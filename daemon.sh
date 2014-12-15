@@ -9,14 +9,29 @@ var args        = require('optimist').argv,
     hcTimeout   = (args.t && args.t*1000) || 10000,
     timer;
 
-console.log('Forever args: ', args);
+
+var newArgs = [];
+if(args){
+    for(var prop in args){
+        if(prop.match(/^[a-z0-9]*$/i)){
+            var argString = '-' + prop;
+            if(args[prop] !== true){
+                argString += ' ' + args[prop];
+            }
+            newArgs.push(argString);
+        }
+    }
+}
+
+console.log('Forever args: ', args, ' pass through args: ', newArgs);
+
 
 /**
  * Instantiate a Forever monitor
  */
 var child = new (forever.Monitor)(script, {
     silent: false,
-    args: ['-d', '-p '+port], // passes the 'd' flag (daemonized) and the port number to the child script
+    args: newArgs, // passes the 'd' flag (daemonized) and the port number to the child script
     minUptime: 5000, // Minimum time a child process has to be up. Forever will 'exit' otherwise.
     spinSleepTime: 3000 // Interval between restarts if a child is spinning (i.e. alive < minUptime).
 });

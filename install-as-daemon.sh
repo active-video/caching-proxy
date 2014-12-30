@@ -32,8 +32,5 @@ echo '/var/www/html/caching-proxy/daemon.sh' >> /etc/rc.local;
 
 #GET DATA
 rm -rf /var/www/html/caching-proxy/data;
-curl 'http://www.amgapps.com/charter/caching-proxy-data.zip' --output '/var/www/html/caching-proxy/data.zip';
-unzip /var/www/html/caching-proxy/data.zip -d /var/www/html/caching-proxy/data/
-rm -f /var/www/html/caching-proxy/data.zip;
 
 /var/www/html/caching-proxy/daemon.sh

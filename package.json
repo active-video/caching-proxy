@@ -1,40 +1,43 @@
 {
-  "name": "replay-server",
-  "description": "A simple replay server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server",
-  "version": "0.1.0",
-  "author": "Chad Wagner <cwagner@activevideo.com> (http://developer.activevideo.com/)",
+  "name": "caching-proxy",
+  "description": "A caching proxy server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server - for tradeshows, demos, data that you know will be retired someday, and load testing in shared environments (exmample CloudTV where a server could be running thousands of browser sessions at once and you want to test server scalability independent of APIs an app might depend on, ala activevideo.com)",
+  "version": "1.1.10",
+  "author": "Chad Wagner <cwagner@activevideo.com> (http://developer.activevideo.com/), Steve Oziel <S.Oziel@activevideo.com> ",
   "keywords": [
     "test",
     "testing",
     "mock",
     "stub",
     "http",
-    "replay",
     "vcr",
     "api",
     "server"
   ],
-  "main": "./lib/replay",
+  "main": "lib/caching-proxy",
   "directories": {
     "doc": "./doc",
     "lib": "./lib"
   },
   "scripts": {},
   "dependencies": {
-    "replay": "~1.11.0"
+    "forever-monitor": ">=1.5.2",
+    "optimist": ">=0.6.1",
+    "follow-redirects" : ">=0.0.3",
+    "mkdirp" : ">=0.5.0",
+    "request": ">=2.49.0"
   },
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/active-video/node-replay-server"
+    "url": "https://github.com/active-video/caching-proxy"
   },
   "bugs": {
-    "url": "https://github.com/active-video/node-replay-server/issues"
+    "url": "https://github.com/active-video/caching-proxy/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/active-video/node-replay-server/blob/master/MIT-LICENSE"
+      "url": "https://github.com/active-video/caching-proxy/blob/master/MIT-LICENSE"
     }
   ]
 }

@@ -81,8 +81,10 @@ All requests routed through caching proxy should have the initial
 
 -  `http://` ---> replaced with `http/`
 -  `https://` ---> replaced with `https/`
+-  optionally, prefix your URL with a cache folder ID made up of numbers, letters, hyphens and underscores
+    -  i.e. http://localhost:8092/my-folder-name/http/www.activevideo.com/
 
-```
+```javascript
    var cachingProxy = 'http://localhost:8092/';
    var urlToGet = 'http://developer.activevideo.com';
    
@@ -93,9 +95,22 @@ All requests routed through caching proxy should have the initial
    x.send();
 ```
 
-The response will be saved to the directory ./data/ by default, or if you started the proxy with.
+The response will be saved to the directory ./data/default/ by default, or "default" inside the dir you started the proxy with.
  
 The response content for any text file will be searched, and all absolute paths within the response text will be replaced with the path to the proxy. 
+
+Note: to use a different folder than "default", the URL should be updated to have a folder ID consisting
+of numbers, letters, hyphens and underscores:
+
+```
+'http://localhost:8092/load-test-1/http/www.activevideo.com/'
+//this will save files to:
+'./data/load-test-1/'
+
+````
+
+In this manner it is possible to cache multiple versions of the same resources by providing varying
+the caching folder id
 
 Source HTML before proxy does replacements
 

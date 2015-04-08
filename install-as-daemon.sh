@@ -22,7 +22,7 @@ sudo n stable;
 npm install caching-proxy;
 
 echo '#!/bin/bash' > /var/www/html/caching-proxy/daemon.sh;
-echo '\n\n' >> /var/www/html/caching-proxy/daemon.sh;
+printf '\n\n' >> /var/www/html/caching-proxy/daemon.sh;
 echo 'cd /var/www/html/caching-proxy/node_modules/caching-proxy' >> /var/www/html/caching-proxy/daemon.sh;
 echo 'nohup ./daemon.sh -e token,rand -d /var/www/html/caching-proxy/data &' >> /var/www/html/caching-proxy/daemon.sh;
 

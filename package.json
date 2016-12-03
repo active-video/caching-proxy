@@ -1,7 +1,7 @@
 {
   "name": "caching-proxy",
   "description": "A caching proxy server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server - for tradeshows, demos, data that you know will be retired someday, and load testing in shared environments (exmample CloudTV where a server could be running thousands of browser sessions at once and you want to test server scalability independent of APIs an app might depend on, ala activevideo.com)",
-  "version": "1.2.2",
+  "version": "1.2.14",
   "author": "Chad Wagner <cwagner@activevideo.com> (http://developer.activevideo.com/), Steve Oziel <S.Oziel@activevideo.com> ",
   "keywords": [
     "test",
@@ -18,12 +18,15 @@
     "doc": "./doc",
     "lib": "./lib"
   },
-  "scripts": {},
+  "scripts": {
+    "start": "node start.js -p 8092 -d data -e token,rand"
+  },
   "dependencies": {
+    "file-type": "^3.8.0",
+    "follow-redirects": ">=0.0.3",
     "forever-monitor": ">=1.5.2",
+    "mkdirp": ">=0.5.0",
     "optimist": ">=0.6.1",
-    "follow-redirects" : ">=0.0.3",
-    "mkdirp" : ">=0.5.0",
     "request": ">=2.49.0",
     "sanitize-filename": ">=1.3.0"
   },
@@ -35,10 +38,5 @@
   "bugs": {
     "url": "https://github.com/active-video/caching-proxy/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/active-video/caching-proxy/blob/master/MIT-LICENSE"
-    }
-  ]
+  "license": "MIT"
 }

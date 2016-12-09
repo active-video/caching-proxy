@@ -126,3 +126,32 @@ Source HTML before proxy does replacements
         <img src="http://localhost:8092/http/developer.activevideo.com/templates/avdeveloper/images/logo.png" />
    </html>
 ```
+
+
+# Run via pm2
+
+You can use the process manager `pm2` to run the caching-proxy as a service.
+
+Node package: https://www.npmjs.com/package/pm2
+
+pm2 website: http://pm2.keymetrics.io/
+
+## Install pm2
+```
+npm install pm2
+```
+
+## Run start .js with your parameters
+```
+pm2 start start.js -o pm2_output.log -e pm2_errors.log -- -e token,rand -b 404,500 -d ./data
+```
+
+## List out pm2 apps
+```
+pm2 list
+```
+
+## Monitor pm2 apps
+```
+pm2 monit
+```

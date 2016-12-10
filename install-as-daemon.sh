@@ -2,6 +2,7 @@
 
 #Kill existing service
 killall node;
+pm2 kill;
 
 #Create the folder structure and download the service
 cd /var/www/html/;
@@ -24,7 +25,7 @@ npm install caching-proxy;
 echo '#!/bin/bash' > /var/www/html/caching-proxy/daemon.sh;
 printf '\n\n' >> /var/www/html/caching-proxy/daemon.sh;
 echo 'cd /var/www/html/caching-proxy/node_modules/caching-proxy' >> /var/www/html/caching-proxy/daemon.sh;
-echo 'nohup ./daemon.sh -e token,rand -d /var/www/html/caching-proxy/data &' >> /var/www/html/caching-proxy/daemon.sh;
+echo 'pm2 start start.js -o pm2_output.log -e pm2_errors.log -- -e token,rand -b 404,500 -d /var/www/html/caching-proxy/data' >> /var/www/html/caching-proxy/daemon.sh;
 
 chmod 777 /var/www/html/caching-proxy/daemon.sh;
 

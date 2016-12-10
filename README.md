@@ -143,7 +143,7 @@ npm install pm2
 
 ## Run start .js with your parameters
 ```
-pm2 start start.js -o pm2_output.log -e pm2_errors.log -- -e token,rand -b 404,500 -d ./data
+pm2 start start.js -o pm2_output.log -e pm2_errors.log -- -e token,rand -b 404,500 -d /var/www/html/caching-proxy/data
 ```
 
 ## List out pm2 apps

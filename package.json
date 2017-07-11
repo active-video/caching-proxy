@@ -22,6 +22,7 @@
     "start": "node start.js -p 8092 -d data -e token,rand"
   },
   "dependencies": {
+    "dateformat": "^2.0.0",
     "file-type": "^3.8.0",
     "follow-redirects": ">=0.0.3",
     "mkdirp": ">=0.5.0",

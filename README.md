@@ -138,7 +138,7 @@ pm2 website: http://pm2.keymetrics.io/
 
 ## Install pm2
 ```
-npm install pm2
+npm install pm2 -g
 ```
 
 ## Run start .js with your parameters

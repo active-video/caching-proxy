@@ -66,6 +66,7 @@ This is NOT an HTTP proxy for your network, it exposes an HTTP service that you 
 * ```p```: caching-proxy server port. Default is 8092.
 * ```d```: the directory to save cached data into, default is the ./data/ folder
 * ```e```: <CSV exclusions> a comma separated list of URL parameters to exclude from the hash, for example rand,cache-buster, etc (will still be included in proxied request, just not used when determining if this request matches a previous one)
+* ```t```: temporary file only, do not save a cached copy (only transform requests/responses and proxy)
 * ```s```: Expose the status API via /status, default is not to if this flag is omitted. If -s is present, then /status will show all pending request as JSON
 
 #### Example with parameters:

@@ -6,6 +6,7 @@
  * -p <port number> the port to run on, the default is 8092
  * -e <CSV exclusions> a comma separated list of URL parameters to exclude from the hash, for example rand,cache-buster, etc (will still be included in proxied request, just not used when determining if this request matches a previous one)
  * -s Expose the status API via /status, default is not to if this flag is omitted. If -s is present, then /status will show all pending request as JSON
+ * -T: temporary file only, do not save a cached copy (only transform requests/responses and proxy)
  */
 
 require("./lib/caching-proxy").start();

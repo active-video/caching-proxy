@@ -67,6 +67,8 @@ This is NOT an HTTP proxy for your network, it exposes an HTTP service that you 
 * ```d```: the directory to save cached data into, default is the ./data/ folder
 * ```e```: <CSV exclusions> a comma separated list of URL parameters to exclude from the hash, for example rand,cache-buster, etc (will still be included in proxied request, just not used when determining if this request matches a previous one)
 * ```s```: Expose the status API via /status, default is not to if this flag is omitted. If -s is present, then /status will show all pending request as JSON
+* ```proxyHost``` An HTTP proxy through which caching-proxy should route requests, like Apache Traffic Server or Squid
+* ```proxyPort``` Expected when `proxyHost` is non-empty
 
 #### Example with parameters:
 
@@ -154,4 +156,20 @@ pm2 list
 ## Monitor pm2 apps
 ```
 pm2 monit
+```
+
+
+## Using a proxy in front of `caching-proxy`
+To utilize a proxy in front of caching-proxy, use the options `proxyHost` and `proxyPort` through which HTTP requests can be proxied by caching-proxy.
+
+### Without forward proxy
+```
+[ Your Client ] ---> [caching-proxy] ---> Internet
+
+```
+
+### With forward proxy
+```
+[ Your Client ] ---> [caching-proxy] ---> Apache Traffic Server/Squid ---> Internet
+
 ```

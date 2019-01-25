@@ -1,7 +1,7 @@
 {
   "name": "caching-proxy",
   "description": "A caching proxy server useable in your front-end projects to cache API requests and rewrite their responses as needed to be routed through server - for tradeshows, demos, data that you know will be retired someday, and load testing in shared environments (exmample CloudTV where a server could be running thousands of browser sessions at once and you want to test server scalability independent of APIs an app might depend on, ala activevideo.com)",
-  "version": "1.2.22",
+  "version": "1.3.1",
   "author": "Chad Wagner <cwagner@activevideo.com> (http://developer.activevideo.com/), Steve Oziel <S.Oziel@activevideo.com> ",
   "keywords": [
     "test",
@@ -20,7 +20,8 @@
   },
   "scripts": {
     "start": "node start.js -p 8092 -d data -e token,rand",
-    "startdev": "node $NODE_DEBUG_OPTION start.js -p 8092 -d data -e token,rand"
+    "startdev": "node $NODE_DEBUG_OPTION start.js -p 8092 -d data -e token,rand",
+    "startdev-with-parent-proxy": "node $NODE_DEBUG_OPTION start.js -p 8092 -d data -e token,rand --proxyHost 172.19.241.101 --proxyPort 3128"
   },
   "dependencies": {
     "dateformat": "^2.0.0",
